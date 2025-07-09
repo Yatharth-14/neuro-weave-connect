@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Brain, Zap, Clock, User, TrendingUp } from 'lucide-react';
-import { getAIService } from '../../services/aiService';
+import { Search, Brain, Zap, Clock, User, Key } from 'lucide-react';
+import { getAIService, initializeAIService } from '../../services/aiService';
 
 interface SearchResult {
   id: string;
@@ -36,10 +35,23 @@ const SemanticSearch: React.FC<SemanticSearchProps> = ({ threads, onResultClick 
   const [isSearching, setIsSearching] = useState(false);
   const [searchMode, setSearchMode] = useState<'semantic' | 'keyword'>('semantic');
   const [hasAI, setHasAI] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKey, setApiKey] = useState<string>(() => 
+    localStorage.getItem('gemini_api_key') || ''
+  );
 
   useEffect(() => {
     setHasAI(!!getAIService());
   }, []);
+
+  useEffect(() => {
+    if (apiKey) {
+      localStorage.setItem('gemini_api_key', apiKey);
+      initializeAIService(apiKey);
+      setHasAI(true);
+      setShowApiKeyInput(false);
+    }
+  }, [apiKey]);
 
   const performSemanticSearch = async (searchQuery: string) => {
     const aiService = getAIService();
@@ -119,6 +131,15 @@ const SemanticSearch: React.FC<SemanticSearchProps> = ({ threads, onResultClick 
       setResults([]);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (apiKey.trim()) {
+      initializeAIService(apiKey);
+      setHasAI(true);
+      setShowApiKeyInput(false);
     }
   };
 
@@ -236,7 +257,7 @@ const SemanticSearch: React.FC<SemanticSearchProps> = ({ threads, onResultClick 
                   </span>
                   {searchMode === 'semantic' && hasAI && (
                     <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full">
-                      AI-Powered
+                      Gemini AI
                     </span>
                   )}
                 </div>
@@ -290,20 +311,73 @@ const SemanticSearch: React.FC<SemanticSearchProps> = ({ threads, onResultClick 
       </div>
 
       {/* AI Status */}
-      {!hasAI && (
-        <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700">
-          <div className="flex items-center">
-            <Brain className="h-5 w-5 text-yellow-600 mr-2" />
-            <div>
-              <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                Enable AI for Better Search
-              </h4>
-              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                Add your OpenAI API key to unlock semantic search and find content by meaning, not just keywords.
-              </p>
+      {!hasAI && !showApiKeyInput && (
+        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Brain className="h-5 w-5 text-blue-600 mr-2" />
+              <div>
+                <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  Enable AI for Better Search
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                  Add your free Gemini API key to unlock semantic search and find content by meaning.
+                </p>
+              </div>
             </div>
+            <button
+              onClick={() => setShowApiKeyInput(true)}
+              className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+            >
+              <Key className="h-4 w-4 mr-1" />
+              Add Key
+            </button>
           </div>
         </div>
+      )}
+
+      {/* API Key Input */}
+      {showApiKeyInput && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+        >
+          <form onSubmit={handleApiKeySubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Google Gemini API Key
+              </label>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="AIza..."
+                className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Get your free API key at: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">ai.google.dev</code>
+              </p>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={() => setShowApiKeyInput(false)}
+                className="flex-1 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!apiKey.trim()}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Save Key
+              </button>
+            </div>
+          </form>
+        </motion.div>
       )}
     </div>
   );

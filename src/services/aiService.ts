@@ -41,45 +41,46 @@ interface SmartSuggestion {
 class AIService {
   private apiKey: string;
   private model: string;
-  private baseUrl = 'https://api.openai.com/v1';
-  private embeddingModel = 'text-embedding-3-small';
+  private baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+  private embeddingModel = 'text-embedding-004';
 
   constructor(config: AIServiceConfig) {
     this.apiKey = config.apiKey;
-    this.model = config.model || 'gpt-4';
+    this.model = config.model || 'gemini-1.5-flash';
   }
 
   async summarizeContent(request: SummarizeRequest): Promise<string> {
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const prompt = `You are an expert at creating concise, informative summaries. Create a summary that captures the key insights and main points in 2-3 sentences. Focus on actionable information and core concepts.
+
+Please summarize the following content:
+
+${request.content}`;
+
+      const response = await fetch(`${this.baseUrl}/models/${this.model}:generateContent?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert at creating concise, informative summaries. Create a summary that captures the key insights and main points in 2-3 sentences. Focus on actionable information and core concepts.'
-            },
-            {
-              role: 'user',
-              content: `Please summarize the following content:\n\n${request.content}`
-            }
-          ],
-          max_tokens: request.maxLength || 150,
-          temperature: 0.3,
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            maxOutputTokens: request.maxLength || 150,
+            temperature: 0.3,
+          },
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`AI API error: ${response.statusText}`);
+        throw new Error(`Gemini API error: ${response.statusText}`);
       }
 
       const data = await response.json();
-      return data.choices[0]?.message?.content || 'Summary unavailable';
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Summary unavailable';
     } catch (error) {
       console.error('AI summarization error:', error);
       return 'Unable to generate summary at this time.';
@@ -88,32 +89,40 @@ class AIService {
 
   async generateInsights(content: string): Promise<string[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const prompt = `Extract 3-5 key insights from the content. Return them as a JSON array of strings. Each insight should be actionable and specific.
+
+Content: ${content}
+
+Return only the JSON array, no other text.`;
+
+      const response = await fetch(`${this.baseUrl}/models/${this.model}:generateContent?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: 'Extract 3-5 key insights from the content. Return them as a JSON array of strings. Each insight should be actionable and specific.'
-            },
-            {
-              role: 'user',
-              content: content
-            }
-          ],
-          max_tokens: 300,
-          temperature: 0.4,
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            maxOutputTokens: 300,
+            temperature: 0.4,
+          },
         }),
       });
 
       const data = await response.json();
-      const insights = JSON.parse(data.choices[0]?.message?.content || '[]');
-      return Array.isArray(insights) ? insights : [];
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+      
+      try {
+        const insights = JSON.parse(responseText);
+        return Array.isArray(insights) ? insights : [];
+      } catch {
+        // If JSON parsing fails, try to extract insights from text
+        return responseText.split('\n').filter(line => line.trim()).slice(0, 5);
+      }
     } catch (error) {
       console.error('AI insights error:', error);
       return ['Key insights unavailable at this time.'];
@@ -122,24 +131,27 @@ class AIService {
 
   async generateEmbedding(text: string): Promise<number[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/embeddings`, {
+      const response = await fetch(`${this.baseUrl}/models/${this.embeddingModel}:embedContent?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: this.embeddingModel,
-          input: text,
+          model: `models/${this.embeddingModel}`,
+          content: {
+            parts: [{
+              text: text
+            }]
+          },
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Embedding API error: ${response.statusText}`);
+        throw new Error(`Gemini Embedding API error: ${response.statusText}`);
       }
 
       const data = await response.json();
-      return data.data[0]?.embedding || [];
+      return data.embedding?.values || [];
     } catch (error) {
       console.error('Embedding generation error:', error);
       return [];
@@ -224,62 +236,69 @@ class AIService {
 
   async generateSmartSuggestions(content: string, existingTags: string[]): Promise<SmartSuggestion[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const prompt = `Analyze the content and suggest 3-5 relevant tags and improvements. Return as JSON with this structure:
+{
+  "tags": ["tag1", "tag2"],
+  "improvements": ["improvement suggestion 1", "improvement suggestion 2"]
+}
+Focus on technical accuracy and relevance.
+
+Content: ${content}
+Existing tags: ${existingTags.join(', ')}
+
+Return only the JSON, no other text.`;
+
+      const response = await fetch(`${this.baseUrl}/models/${this.model}:generateContent?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: this.model,
-          messages: [
-            {
-              role: 'system',
-              content: `Analyze the content and suggest 3-5 relevant tags and improvements. Return as JSON with this structure:
-              {
-                "tags": ["tag1", "tag2"],
-                "improvements": ["improvement suggestion 1", "improvement suggestion 2"]
-              }
-              Focus on technical accuracy and relevance.`
-            },
-            {
-              role: 'user',
-              content: `Content: ${content}\nExisting tags: ${existingTags.join(', ')}`
-            }
-          ],
-          max_tokens: 250,
-          temperature: 0.3,
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            maxOutputTokens: 250,
+            temperature: 0.3,
+          },
         }),
       });
 
       const data = await response.json();
-      const suggestions = JSON.parse(data.choices[0]?.message?.content || '{"tags":[], "improvements":[]}');
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{"tags":[], "improvements":[]}';
       
-      const smartSuggestions: SmartSuggestion[] = [];
-      
-      // Add tag suggestions
-      suggestions.tags?.forEach((tag: string) => {
-        if (!existingTags.includes(tag)) {
-          smartSuggestions.push({
-            type: 'tag',
-            title: `Add tag: #${tag}`,
-            description: `This tag would help categorize your content better`,
-            confidence: 0.8
-          });
-        }
-      });
-
-      // Add improvement suggestions
-      suggestions.improvements?.forEach((improvement: string) => {
-        smartSuggestions.push({
-          type: 'improvement',
-          title: 'Content Enhancement',
-          description: improvement,
-          confidence: 0.7
+      try {
+        const suggestions = JSON.parse(responseText);
+        const smartSuggestions: SmartSuggestion[] = [];
+        
+        // Add tag suggestions
+        suggestions.tags?.forEach((tag: string) => {
+          if (!existingTags.includes(tag)) {
+            smartSuggestions.push({
+              type: 'tag',
+              title: `Add tag: #${tag}`,
+              description: `This tag would help categorize your content better`,
+              confidence: 0.8
+            });
+          }
         });
-      });
 
-      return smartSuggestions;
+        // Add improvement suggestions
+        suggestions.improvements?.forEach((improvement: string) => {
+          smartSuggestions.push({
+            type: 'improvement',
+            title: 'Content Enhancement',
+            description: improvement,
+            confidence: 0.7
+          });
+        });
+
+        return smartSuggestions;
+      } catch {
+        return [];
+      }
     } catch (error) {
       console.error('Smart suggestions error:', error);
       return [];
