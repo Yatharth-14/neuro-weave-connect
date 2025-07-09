@@ -2,12 +2,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Search, Bell, User, Moon, Sun, Menu, LogOut } from 'lucide-react';
+import { Search, User, Moon, Sun, Menu, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { toggleDarkMode, toggleSidebar } from '../../store/slices/uiSlice';
 import { motion } from 'framer-motion';
 import { useIsMobile } from '../../hooks/use-mobile';
+import NotificationDropdown from '../Notifications/NotificationDropdown';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -84,13 +85,8 @@ const Header: React.FC = () => {
               {darkMode ? <Sun className="h-4 w-4 md:h-5 md:w-5" /> : <Moon className="h-4 w-4 md:h-5 md:w-5" />}
             </button>
 
-            {/* Notifications - hidden on mobile */}
-            {!isMobile && (
-              <button className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-            )}
+            {/* Notifications */}
+            <NotificationDropdown />
 
             {/* User menu */}
             <div className="relative group">
