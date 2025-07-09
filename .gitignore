@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+node_modules
+AIzaSyByyfrpftLwAnI1-5pGZ7EJh8R50BAD3os
