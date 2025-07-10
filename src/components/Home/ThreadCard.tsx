@@ -86,7 +86,6 @@ const ThreadCard: React.FC<ThreadCardProps> = ({ thread, index }) => (
           threadId={thread.id}
           likes={thread.likes}
           likedBy={thread.likedBy || []}
-          size="sm"
         />
         <div className="flex items-center space-x-1">
           <MessageCircle className="h-3 w-3 md:h-4 md:w-4" />

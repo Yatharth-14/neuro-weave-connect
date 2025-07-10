@@ -38,16 +38,20 @@ const CommentForm: React.FC<CommentFormProps> = ({ threadId }) => {
     setIsSubmitting(true);
 
     try {
+      const now = new Date().toISOString();
       const newComment = {
         id: Date.now().toString(),
+        threadId,
         content: content.trim(),
         author: {
           id: user.id,
           name: user.name,
           avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`
         },
-        createdAt: new Date().toISOString(),
-        replies: []
+        createdAt: now,
+        updatedAt: now,
+        likes: 0,
+        likedBy: []
       };
 
       dispatch(addComment({ threadId, comment: newComment }));
