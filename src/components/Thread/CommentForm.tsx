@@ -1,11 +1,10 @@
 
-import React, { useState, useCallback } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Send } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 import { useDispatch } from 'react-redux';
-import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { addComment } from '../../store/slices/threadsSlice';
 import { addNotification } from '../../store/slices/uiSlice';
-import { Textarea } from '../ui/textarea';
 
 interface CommentFormProps {
   threadId: string;
@@ -14,31 +13,23 @@ interface CommentFormProps {
 const CommentForm: React.FC<CommentFormProps> = ({ threadId }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user, isAuthenticated } = useAuth();
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useTypedSelector(state => state.auth);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user || !isAuthenticated) {
+    if (!content.trim()) {
       dispatch(addNotification({
-        message: 'Please login to comment',
+        message: 'Please enter a comment',
         type: 'warning'
       }));
       return;
     }
 
-    if (!content.trim()) {
+    if (!isAuthenticated || !user) {
       dispatch(addNotification({
-        message: 'Comment cannot be empty',
-        type: 'error'
-      }));
-      return;
-    }
-
-    if (content.length > 500) {
-      dispatch(addNotification({
-        message: 'Comment is too long (max 500 characters)',
+        message: 'Please login to leave a comment',
         type: 'error'
       }));
       return;
@@ -48,83 +39,79 @@ const CommentForm: React.FC<CommentFormProps> = ({ threadId }) => {
 
     try {
       const newComment = {
-        id: `comment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        threadId,
+        id: Date.now().toString(),
         content: content.trim(),
         author: {
           id: user.id,
           name: user.name,
-          avatar: user.avatar
+          avatar: user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`
         },
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        likes: 0,
-        likedBy: []
+        replies: []
       };
 
       dispatch(addComment({ threadId, comment: newComment }));
-      setContent('');
       
       dispatch(addNotification({
-        message: 'Comment posted successfully!',
+        message: 'Comment added successfully!',
         type: 'success'
       }));
+
+      setContent('');
     } catch (error) {
       dispatch(addNotification({
-        message: 'Failed to post comment',
+        message: 'Failed to add comment. Please try again.',
         type: 'error'
       }));
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, isAuthenticated, content, threadId, dispatch]);
+  };
 
-  if (!user || !isAuthenticated) {
+  if (!isAuthenticated) {
     return (
-      <div className="text-center py-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-        <p className="text-gray-500 dark:text-gray-400">Please login to leave a comment</p>
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
+        <p className="text-gray-600 dark:text-gray-400">
+          Please login to leave a comment
+        </p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex items-start space-x-3">
+      <div className="flex space-x-3">
         <img
-          src={user.avatar}
-          alt={user.name}
-          className="w-8 h-8 rounded-full flex-shrink-0 border-2 border-gray-200 dark:border-gray-700"
+          src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`}
+          alt={user?.name}
+          className="w-8 h-8 rounded-full flex-shrink-0"
         />
         <div className="flex-1">
-          <Textarea
+          <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="What are your thoughts?"
-            className="min-h-[80px] resize-none border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Write a comment..."
+            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            rows={3}
             disabled={isSubmitting}
-            maxLength={500}
           />
-          <div className="flex justify-between items-center mt-3">
-            <span className={`text-xs ${
-              content.length > 450 
-                ? 'text-red-500' 
-                : content.length > 400 
-                  ? 'text-yellow-500' 
-                  : 'text-gray-500 dark:text-gray-400'
-            }`}>
-              {content.length}/500 characters
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {content.length}/1000
             </span>
             <button
               type="submit"
-              disabled={isSubmitting || !content.trim() || content.length > 500}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
+              disabled={isSubmitting || !content.trim()}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? (
-                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                'Posting...'
               ) : (
-                <Send className="h-4 w-4 mr-1" />
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Comment
+                </>
               )}
-              {isSubmitting ? 'Posting...' : 'Post'}
             </button>
           </div>
         </div>
