@@ -18,10 +18,20 @@ interface AuthState {
   error: string | null;
 }
 
+// Helper function to get user from localStorage
+const getUserFromStorage = (): User | null => {
+  try {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  } catch {
+    return null;
+  }
+};
+
 const initialState: AuthState = {
-  user: null,
+  user: getUserFromStorage(),
   token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: !!(localStorage.getItem('token') && getUserFromStorage()),
   loading: false,
   error: null,
 };
@@ -40,6 +50,7 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.isAuthenticated = true;
       localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
     loginFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
@@ -51,12 +62,22 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
     clearError: (state) => {
       state.error = null;
     },
+    restoreAuth: (state) => {
+      const token = localStorage.getItem('token');
+      const user = getUserFromStorage();
+      if (token && user) {
+        state.token = token;
+        state.user = user;
+        state.isAuthenticated = true;
+      }
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, clearError } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, clearError, restoreAuth } = authSlice.actions;
 export default authSlice.reducer;

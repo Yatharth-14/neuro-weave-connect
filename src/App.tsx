@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { store } from './store/store';
 import { useTypedSelector } from './hooks/useTypedSelector';
+import { restoreAuth } from './store/slices/authSlice';
 
 // Pages
 import Login from './pages/Login';
@@ -35,7 +36,13 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const AppRoutes: React.FC = () => {
+  const dispatch = useDispatch();
   const {darkMode} = useTypedSelector(state => state.ui);
+
+  useEffect(() => {
+    // Restore authentication state on app load
+    dispatch(restoreAuth());
+  }, [dispatch]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -45,7 +52,6 @@ const AppRoutes: React.FC = () => {
       root.classList.remove('dark');
     }
   }, [darkMode]);
-
 
   return (
     <BrowserRouter>
