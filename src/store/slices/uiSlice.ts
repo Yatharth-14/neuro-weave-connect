@@ -7,7 +7,7 @@ interface UIState {
   notifications: Array<{
     id: string;
     message: string;
-    type: 'success' | 'error' | 'info';
+    type: 'success' | 'error' | 'info' | 'warning';
     timestamp: string;
   }>;
 }
@@ -15,7 +15,7 @@ interface UIState {
 const initialState: UIState = {
   darkMode: localStorage.getItem('darkMode') === 'true',
   sidebarOpen: false,
-  notifications: [],
+  notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
 };
 
 const uiSlice = createSlice({
@@ -29,19 +29,25 @@ const uiSlice = createSlice({
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
     },
-    addNotification: (state, action: PayloadAction<{message: string; type: 'success' | 'error' | 'info'}>) => {
+    addNotification: (state, action: PayloadAction<{message: string; type: 'success' | 'error' | 'info' | 'warning'}>) => {
       const notification = {
         id: Date.now().toString(),
         ...action.payload,
         timestamp: new Date().toISOString(),
       };
       state.notifications.unshift(notification);
+      localStorage.setItem('notifications', JSON.stringify(state.notifications));
     },
     removeNotification: (state, action: PayloadAction<string>) => {
       state.notifications = state.notifications.filter(n => n.id !== action.payload);
+      localStorage.setItem('notifications', JSON.stringify(state.notifications));
+    },
+    markAllNotificationsAsRead: (state) => {
+      state.notifications = [];
+      localStorage.setItem('notifications', JSON.stringify([]));
     },
   },
 });
 
-export const { toggleDarkMode, toggleSidebar, addNotification, removeNotification } = uiSlice.actions;
+export const { toggleDarkMode, toggleSidebar, addNotification, removeNotification, markAllNotificationsAsRead } = uiSlice.actions;
 export default uiSlice.reducer;

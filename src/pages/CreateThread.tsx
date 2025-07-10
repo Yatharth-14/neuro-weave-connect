@@ -48,6 +48,8 @@ const CreateThread: React.FC = () => {
         updatedAt: new Date().toISOString(),
         views: 0,
         likes: 0,
+        likedBy: [],
+        comments: [],
         aiSummary: aiSummary || undefined,
       };
 

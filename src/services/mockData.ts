@@ -200,3 +200,30 @@ Remember: measure first, then optimize based on actual bottlenecks.`,
     comments: []
   }
 ];
+
+export const mockKnowledgeGraph = {
+  nodes: [
+    { id: 'react', label: 'React', group: 'frontend', size: 20 },
+    { id: 'javascript', label: 'JavaScript', group: 'language', size: 18 },
+    { id: 'nodejs', label: 'Node.js', group: 'backend', size: 16 },
+    { id: 'ml', label: 'Machine Learning', group: 'ai', size: 15 },
+    { id: 'python', label: 'Python', group: 'language', size: 17 },
+    { id: 'typescript', label: 'TypeScript', group: 'language', size: 14 },
+    { id: 'ai', label: 'Artificial Intelligence', group: 'ai', size: 19 },
+    { id: 'web-dev', label: 'Web Development', group: 'frontend', size: 16 },
+    { id: 'data-science', label: 'Data Science', group: 'ai', size: 13 },
+    { id: 'backend', label: 'Backend Development', group: 'backend', size: 14 },
+  ],
+  links: [
+    { source: 'react', target: 'javascript', strength: 0.9 },
+    { source: 'react', target: 'web-dev', strength: 0.8 },
+    { source: 'javascript', target: 'nodejs', strength: 0.7 },
+    { source: 'javascript', target: 'typescript', strength: 0.8 },
+    { source: 'ml', target: 'python', strength: 0.9 },
+    { source: 'ml', target: 'ai', strength: 0.8 },
+    { source: 'ml', target: 'data-science', strength: 0.7 },
+    { source: 'python', target: 'data-science', strength: 0.8 },
+    { source: 'nodejs', target: 'backend', strength: 0.7 },
+    { source: 'ai', target: 'data-science', strength: 0.6 },
+  ]
+};
