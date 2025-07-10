@@ -1,118 +1,202 @@
-
-// Mock data for development
-export const mockUser = {
-  id: '1',
-  name: 'John Doe',
-  email: 'john@example.com',
-  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-  joinedDate: '2024-01-15',
-};
+export const mockUsers = [
+  {
+    id: 'user-1',
+    name: 'Alice Johnson',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+  },
+  {
+    id: 'user-2',
+    name: 'Bob Smith',
+    avatar: 'https://i.pravatar.cc/150?img=2',
+  },
+  {
+    id: 'user-3',
+    name: 'Charlie Brown',
+    avatar: 'https://i.pravatar.cc/150?img=3',
+  }
+];
 
 export const mockThreads = [
   {
     id: '1',
-    title: 'Understanding React Hooks',
-    content: '# React Hooks Deep Dive\n\nReact Hooks revolutionized how we write React components...',
-    tags: ['react', 'hooks', 'javascript'],
-    author: {
-      id: '1',
-      name: 'John Doe',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-    },
-    contributors: [
+    title: 'Understanding React Server Components',
+    content: `# React Server Components: A Deep Dive
+
+React Server Components represent a new paradigm in React development that allows components to render on the server, reducing the JavaScript bundle size and improving performance.
+
+## Key Benefits
+
+1. **Reduced Bundle Size**: Server components don't ship to the client
+2. **Better Performance**: Less JavaScript to parse and execute
+3. **Improved SEO**: Content is rendered on the server
+
+## Implementation
+
+\`\`\`jsx
+// Server Component
+export default function BlogPost({ slug }) {
+  const post = await fetchPost(slug);
+  return (
+    <article>
+      <h1>{post.title}</h1>
+      <p>{post.content}</p>
+    </article>
+  );
+}
+\`\`\`
+
+This is still an experimental feature, but it shows great promise for the future of React applications.`,
+    tags: ['react', 'javascript', 'web-development'],
+    author: mockUsers[0],
+    contributors: [mockUsers[1], mockUsers[2]],
+    createdAt: '2024-01-15T10:00:00Z',
+    updatedAt: '2024-01-15T10:00:00Z',
+    aiSummary: 'Explores React Server Components, their benefits for performance and bundle size reduction, and implementation patterns.',
+    isCollaborating: true,
+    views: 1234,
+    likes: 45,
+    likedBy: ['user-1', 'user-2', 'user-3'],
+    comments: [
       {
-        id: '2',
-        name: 'Jane Smith',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
+        id: 'comment-1',
+        threadId: '1',
+        content: 'Great explanation! I\'ve been wondering about Server Components for a while.',
+        author: mockUsers[1],
+        createdAt: '2024-01-15T11:00:00Z',
+        updatedAt: '2024-01-15T11:00:00Z',
+        likes: 12,
+        likedBy: ['user-1', 'user-3']
       },
-    ],
-    createdAt: '2024-01-20T10:00:00Z',
-    updatedAt: '2024-01-20T15:30:00Z',
-    aiSummary: 'This thread explains the fundamentals of React Hooks, including useState, useEffect, and custom hooks.',
-    views: 245,
-    likes: 18,
+      {
+        id: 'comment-2',
+        threadId: '1',
+        content: 'The code example really helps understand the concept. Thanks for sharing!',
+        author: mockUsers[2],
+        createdAt: '2024-01-15T12:00:00Z',
+        updatedAt: '2024-01-15T12:00:00Z',
+        likes: 8,
+        likedBy: ['user-1']
+      }
+    ]
   },
   {
     id: '2',
-    title: 'AI and Machine Learning Basics',
-    content: '# Introduction to AI/ML\n\nArtificial Intelligence and Machine Learning are transforming...',
-    tags: ['ai', 'machine-learning', 'python'],
-    author: {
-      id: '2',
-      name: 'Jane Smith',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
-    },
+    title: 'Machine Learning Fundamentals',
+    content: `# Machine Learning Fundamentals
+
+Machine learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed.
+
+## Types of Machine Learning
+
+### 1. Supervised Learning
+- Uses labeled training data
+- Examples: Classification, Regression
+
+### 2. Unsupervised Learning
+- Finds patterns in unlabeled data
+- Examples: Clustering, Association
+
+### 3. Reinforcement Learning
+- Learns through interaction with environment
+- Examples: Game playing, Robotics
+
+## Getting Started
+
+\`\`\`python
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Load and prepare data
+data = pd.read_csv('dataset.csv')
+X = data[['feature1', 'feature2']]
+y = data['target']
+
+# Split and train
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LinearRegression()
+model.fit(X_train, y_train)
+\`\`\`
+
+Start with simple algorithms and gradually move to more complex ones.`,
+    tags: ['machine-learning', 'ai', 'python', 'data-science'],
+    author: mockUsers[1],
     contributors: [],
-    createdAt: '2024-01-19T14:20:00Z',
-    updatedAt: '2024-01-19T16:45:00Z',
-    aiSummary: 'Comprehensive overview of AI/ML concepts, algorithms, and practical applications.',
-    views: 189,
-    likes: 23,
-  },
-  {
-    id: '3',
-    title: 'Web Development Best Practices',
-    content: '# Modern Web Development\n\nBuilding scalable and maintainable web applications...',
-    tags: ['web-development', 'best-practices', 'performance'],
-    author: {
-      id: '3',
-      name: 'Mike Johnson',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-    },  
-    contributors: [
+    createdAt: '2024-01-14T14:30:00Z',
+    updatedAt: '2024-01-14T14:30:00Z',
+    aiSummary: 'Comprehensive introduction to machine learning concepts, types, and practical implementation with Python code examples.',
+    views: 856,
+    likes: 32,
+    likedBy: ['user-2', 'user-3'],
+    comments: [
       {
-        id: '1',
-        name: 'John Doe',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-      },
-    ],
-    createdAt: '2024-01-18T09:15:00Z',
-    updatedAt: '2024-01-18T11:30:00Z',
-    aiSummary: 'Essential practices for modern web development including performance optimization and code quality.',
-    views: 167,
-    likes: 15,
-  },
-];
-
-export const mockSearchResults = [
-  {
-    id: '1',
-    title: 'Understanding React Hooks',
-    content: 'React Hooks revolutionized how we write React components...',
-    tags: ['react', 'hooks', 'javascript'],
-    author: {
-      id: '1',
-      name: 'John Doe',
-    },
-    relevanceScore: 0.95,
-    createdAt: '2024-01-20T10:00:00Z',
+        id: 'comment-3',
+        threadId: '2',
+        content: 'Perfect starting point for ML beginners. The Python example is very helpful.',
+        author: mockUsers[0],
+        createdAt: '2024-01-14T15:00:00Z',
+        updatedAt: '2024-01-14T15:00:00Z',
+        likes: 5,
+        likedBy: ['user-2']
+      }
+    ]
   },
   {
     id: '3',
-    title: 'Web Development Best Practices',
-    content: 'Building scalable and maintainable web applications...',
-    tags: ['web-development', 'best-practices', 'performance'],
-    author: {
-      id: '3',
-      name: 'Mike Johnson',
-    },
-    relevanceScore: 0.78,
-    createdAt: '2024-01-18T09:15:00Z',
-  },
-];
+    title: 'Building Scalable Node.js Applications',
+    content: `# Building Scalable Node.js Applications
 
-export const mockKnowledgeGraph = {
-  nodes: [
-    { id: '1', label: 'React Hooks', size: 20, group: 'frontend' },
-    { id: '2', label: 'AI/ML Basics', size: 15, group: 'ai' },
-    { id: '3', label: 'Web Dev Practices', size: 18, group: 'frontend' },
-    { id: '4', label: 'JavaScript', size: 25, group: 'language' },
-    { id: '5', label: 'Python', size: 22, group: 'language' },
-  ],
-  links: [
-    { source: '1', target: '4', strength: 0.8 },
-    { source: '3', target: '4', strength: 0.6 },
-    { source: '2', target: '5', strength: 0.9 },
-    { source: '1', target: '3', strength: 0.4 },
-  ],
-};
+Node.js is excellent for building scalable network applications. Here are key principles and patterns for building applications that can handle high loads.
+
+## Architecture Patterns
+
+### 1. Microservices
+Break your application into small, independent services that communicate via APIs.
+
+### 2. Event-Driven Architecture
+Use events to decouple components and improve scalability.
+
+### 3. Load Balancing
+Distribute incoming requests across multiple server instances.
+
+## Performance Optimization
+
+\`\`\`javascript
+// Use clustering to utilize all CPU cores
+const cluster = require('cluster');
+const numCPUs = require('os').cpus().length;
+
+if (cluster.isMaster) {
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+} else {
+  // Worker process
+  require('./app.js');
+}
+\`\`\`
+
+## Database Optimization
+- Use connection pooling
+- Implement proper indexing
+- Consider read replicas for read-heavy applications
+
+## Caching Strategies
+- Redis for session storage
+- CDN for static assets
+- Application-level caching
+
+Remember: measure first, then optimize based on actual bottlenecks.`,
+    tags: ['nodejs', 'javascript', 'backend', 'scalability'],
+    author: mockUsers[2],
+    contributors: [mockUsers[0]],
+    createdAt: '2024-01-13T09:15:00Z',
+    updatedAt: '2024-01-13T16:20:00Z',
+    aiSummary: 'Comprehensive guide to building scalable Node.js applications covering architecture patterns, performance optimization, and best practices.',
+    isCollaborating: false,
+    views: 642,
+    likes: 28,
+    likedBy: ['user-1', 'user-2'],
+    comments: []
+  }
+];

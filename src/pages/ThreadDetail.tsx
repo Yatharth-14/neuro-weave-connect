@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,9 +6,7 @@ import {
   Users, 
   Clock, 
   Eye, 
-  Heart, 
   Share2, 
-  MessageCircle,
   ArrowLeft
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -21,6 +18,8 @@ import { mockThreads } from '../services/mockData';
 import { socketService } from '../services/socket';
 import Layout from '../components/Layout/Layout';
 import AIAnalysis from '../components/AI/AIAnalysis';
+import LikeButton from '../components/Thread/LikeButton';
+import CommentsSection from '../components/Thread/CommentsSection';
 
 const ThreadDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -33,12 +32,17 @@ const ThreadDetail: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      // Find thread by ID
+      // Find thread by ID and add missing properties
       const thread = mockThreads.find(t => t.id === id);
       if (thread) {
-        dispatch(setCurrentThread(thread));
-        setEditContent(thread.content);
-        setCollaborators(thread.contributors);
+        const enhancedThread = {
+          ...thread,
+          likedBy: thread.likedBy || [],
+          comments: thread.comments || []
+        };
+        dispatch(setCurrentThread(enhancedThread));
+        setEditContent(enhancedThread.content);
+        setCollaborators(enhancedThread.contributors);
         
         // Join thread room for real-time collaboration
         socketService.joinThread(id);
@@ -162,10 +166,6 @@ const ThreadDetail: React.FC = () => {
                           <Eye className="h-4 w-4" />
                           <span>{currentThread.views}</span>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Heart className="h-4 w-4" />
-                          <span>{currentThread.likes}</span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -228,6 +228,16 @@ const ThreadDetail: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Like Button */}
+                <div className="flex items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <LikeButton
+                    threadId={currentThread.id}
+                    likes={currentThread.likes}
+                    likedBy={currentThread.likedBy}
+                    size="lg"
+                  />
+                </div>
               </div>
             </motion.div>
 
@@ -272,17 +282,11 @@ const ThreadDetail: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-6"
             >
-              <div className="flex items-center mb-6">
-                <MessageCircle className="h-5 w-5 text-gray-400 mr-2" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Comments</h3>
-              </div>
-              
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No comments yet. Be the first to share your thoughts!</p>
-              </div>
+              <CommentsSection
+                threadId={currentThread.id}
+                comments={currentThread.comments}
+              />
             </motion.div>
           </div>
 
