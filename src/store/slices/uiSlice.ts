@@ -4,6 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface UIState {
   darkMode: boolean;
   sidebarOpen: boolean;
+  sidebarCollapsed: boolean;
   notifications: Array<{
     id: string;
     message: string;
@@ -15,6 +16,7 @@ interface UIState {
 const initialState: UIState = {
   darkMode: localStorage.getItem('darkMode') === 'true',
   sidebarOpen: false,
+  sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
   notifications: JSON.parse(localStorage.getItem('notifications') || '[]'),
 };
 
@@ -28,6 +30,14 @@ const uiSlice = createSlice({
     },
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
+    },
+    toggleSidebarCollapse: (state) => {
+      state.sidebarCollapsed = !state.sidebarCollapsed;
+      localStorage.setItem('sidebarCollapsed', state.sidebarCollapsed.toString());
+    },
+    setSidebarCollapsed: (state, action: PayloadAction<boolean>) => {
+      state.sidebarCollapsed = action.payload;
+      localStorage.setItem('sidebarCollapsed', state.sidebarCollapsed.toString());
     },
     addNotification: (state, action: PayloadAction<{message: string; type: 'success' | 'error' | 'info' | 'warning'}>) => {
       const notification = {
@@ -49,5 +59,13 @@ const uiSlice = createSlice({
   },
 });
 
-export const { toggleDarkMode, toggleSidebar, addNotification, removeNotification, markAllNotificationsAsRead } = uiSlice.actions;
+export const { 
+  toggleDarkMode, 
+  toggleSidebar, 
+  toggleSidebarCollapse,
+  setSidebarCollapsed,
+  addNotification, 
+  removeNotification, 
+  markAllNotificationsAsRead 
+} = uiSlice.actions;
 export default uiSlice.reducer;

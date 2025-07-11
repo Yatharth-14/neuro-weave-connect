@@ -10,25 +10,30 @@ import SidebarFooter from './SidebarFooter';
 import SidebarOverlay from './SidebarOverlay';
 
 const Sidebar: React.FC = () => {
-  const { sidebarOpen } = useTypedSelector(state => state.ui);
+  const { sidebarOpen, sidebarCollapsed } = useTypedSelector(state => state.ui);
   const isMobile = useIsMobile();
+
+  // On mobile, show/hide based on sidebarOpen
+  // On desktop, always show but collapse/expand based on sidebarCollapsed
+  const shouldShow = isMobile ? sidebarOpen : true;
+  const sidebarWidth = sidebarCollapsed && !isMobile ? 'w-16' : 'w-64';
 
   return (
     <AnimatePresence>
-      {(sidebarOpen || !isMobile) && (
+      {shouldShow && (
         <>
           <SidebarOverlay isMobile={isMobile} sidebarOpen={sidebarOpen} />
 
           {/* Sidebar */}
           <motion.div
-            initial={isMobile ? { x: -300 } : { opacity: 0 }}
-            animate={isMobile ? { x: 0 } : { opacity: 1 }}
-            exit={isMobile ? { x: -300 } : { opacity: 0 }}
+            initial={isMobile ? { x: -300 } : { width: sidebarCollapsed ? 64 : 256 }}
+            animate={isMobile ? { x: 0 } : { width: sidebarCollapsed ? 64 : 256 }}
+            exit={isMobile ? { x: -300 } : { width: 64 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className={`
               ${isMobile ? 'fixed inset-y-0 left-0 z-30' : 'sticky top-16 h-[calc(100vh-4rem)]'}
-              w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
-              flex flex-col
+              ${sidebarWidth} bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
+              flex flex-col transition-all duration-300 ease-in-out
             `}
           >
             <SidebarHeader />

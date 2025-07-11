@@ -1,25 +1,34 @@
 
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { X } from 'lucide-react';
-import { toggleSidebar } from '../../store/slices/uiSlice';
+import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { useIsMobile } from '../../hooks/use-mobile';
 
 const SidebarHeader: React.FC = () => {
-  const dispatch = useDispatch();
   const isMobile = useIsMobile();
+  const { sidebarCollapsed } = useTypedSelector(state => state.ui);
 
-  if (!isMobile) return null;
+  const isCollapsed = sidebarCollapsed && !isMobile;
+
+  if (isCollapsed) {
+    return (
+      <div className="flex items-center justify-center p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <span className="text-white font-bold text-sm">N</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-      <span className="text-lg font-semibold text-gray-900 dark:text-white">Menu</span>
-      <button
-        onClick={() => dispatch(toggleSidebar())}
-        className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
-      >
-        <X className="h-5 w-5" />
-      </button>
+      <div className="flex items-center">
+        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+          <span className="text-white font-bold text-sm">N</span>
+        </div>
+        <span className="text-lg font-semibold text-gray-900 dark:text-white">
+          {isMobile ? 'Menu' : 'NeuroShare'}
+        </span>
+      </div>
     </div>
   );
 };
