@@ -3,6 +3,7 @@ import React from 'react';
 import { Clock, MoreHorizontal } from 'lucide-react';
 import { Comment } from '../../store/slices/threadsSlice';
 import LikeButton from './LikeButton';
+import { formatTimeAgo } from '../../utils/timeUtils';
 
 interface CommentItemProps {
   comment: Comment;
@@ -10,22 +11,6 @@ interface CommentItemProps {
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, threadId }) => {
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-    
-    if (minutes < 1) return 'just now';
-    if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}h`;
-    if (days < 7) return `${days}d`;
-    return date.toLocaleDateString();
-  };
-
   return (
     <div className="flex space-x-3 py-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors duration-200 rounded-lg px-2">
       <img
