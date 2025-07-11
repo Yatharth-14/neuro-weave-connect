@@ -24,14 +24,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Calculate main content margin based on sidebar state
   const getMainContentClasses = () => {
     if (isMobile) {
-      return 'flex-1 p-6'; // Mobile: sidebar is overlay, no margin needed
+      return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // Mobile: sidebar is overlay, no margin needed
     }
     
     if (sidebarCollapsed) {
-      return 'flex-1 p-6 ml-16'; // Desktop collapsed: small margin
+      return 'flex-1 p-6 ml-16 transition-all duration-200 ease-in-out'; // Desktop collapsed: small margin
     }
     
-    return 'flex-1 p-6'; // Desktop expanded: sidebar takes space in flex
+    return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // Desktop expanded: sidebar takes space in flex
   };
 
   return (

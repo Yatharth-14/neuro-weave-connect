@@ -19,8 +19,15 @@ const SidebarOverlay: React.FC<SidebarOverlayProps> = ({ isMobile, sidebarOpen }
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-gray-600 bg-opacity-75 z-20"
+      transition={{
+        duration: 0.2,
+        ease: 'easeInOut'
+      }}
+      className="fixed inset-0 bg-gray-600 bg-opacity-75 z-20 will-change-transform"
       onClick={() => dispatch(toggleSidebar())}
+      style={{
+        transform: 'translateZ(0)', // Force hardware acceleration
+      }}
     />
   );
 };

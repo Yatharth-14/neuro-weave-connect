@@ -42,15 +42,17 @@ const SidebarNavigation: React.FC = () => {
               <Link
                 to={item.href}
                 onClick={() => isMobile && dispatch(toggleSidebar())}
-                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'px-3'} py-2 text-sm font-medium rounded-md transition-colors group relative ${
+                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'px-3'} py-2 text-sm font-medium rounded-md group relative transition-all duration-200 ease-in-out ${
                   isActive(item.href)
                     ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                 }`}
                 title={isCollapsed ? item.name : undefined}
               >
-                <Icon className={`h-5 w-5 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`} />
-                {!isCollapsed && <span className="truncate">{item.name}</span>}
+                <Icon className={`h-5 w-5 flex-shrink-0 transition-all duration-200 ease-in-out ${isCollapsed ? '' : 'mr-3'}`} />
+                <span className={`truncate transition-all duration-200 ease-in-out ${isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
+                  {item.name}
+                </span>
                 
                 {/* Tooltip for collapsed state */}
                 {isCollapsed && (
