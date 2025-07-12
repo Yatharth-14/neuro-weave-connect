@@ -24,16 +24,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Calculate main content margin based on sidebar state
   const getMainContentClasses = () => {
     if (isMobile || !sidebarOpen) {
-      return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // No margin when sidebar is hidden or on mobile
+      return 'flex-1 p-6 transition-all duration-200 ease-in-out w-full'; // Full width when sidebar is hidden or on mobile
     }
     
-    return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // Desktop with sidebar open: sidebar takes space in flex
+    return 'flex-1 p-6 transition-all duration-200 ease-in-out w-full'; // Full width desktop with sidebar open
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 w-full">
       <Header />
-      <div className="flex">
+      <div className="flex w-full">
         <Sidebar />
         <main className={getMainContentClasses()}>
           {children}
