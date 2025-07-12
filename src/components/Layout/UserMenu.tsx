@@ -27,7 +27,7 @@ const UserMenu: React.FC = () => {
           className="w-6 h-6 md:w-8 md:h-8 rounded-full"
         />
         {!isMobile && (
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block truncate max-w-24">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block truncate w-full max-w-24">
             {user?.name}
           </span>
         )}
@@ -36,7 +36,7 @@ const UserMenu: React.FC = () => {
       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
         <Link
           to="/profile"
-          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full"
         >
           <User className="h-4 w-4 mr-2" />
           Profile

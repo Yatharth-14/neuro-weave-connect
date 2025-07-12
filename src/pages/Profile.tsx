@@ -42,7 +42,7 @@ const Profile: React.FC = () => {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <ProfileHeader user={user} />
         <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
         
