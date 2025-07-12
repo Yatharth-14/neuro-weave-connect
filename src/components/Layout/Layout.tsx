@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { darkMode, sidebarCollapsed } = useTypedSelector(state => state.ui);
+  const { darkMode, sidebarOpen } = useTypedSelector(state => state.ui);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -23,15 +23,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Calculate main content margin based on sidebar state
   const getMainContentClasses = () => {
-    if (isMobile) {
-      return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // Mobile: sidebar is overlay, no margin needed
+    if (isMobile || !sidebarOpen) {
+      return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // No margin when sidebar is hidden or on mobile
     }
     
-    if (sidebarCollapsed) {
-      return 'flex-1 p-6 ml-16 transition-all duration-200 ease-in-out'; // Desktop collapsed: small margin
-    }
-    
-    return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // Desktop expanded: sidebar takes space in flex
+    return 'flex-1 p-6 transition-all duration-200 ease-in-out'; // Desktop with sidebar open: sidebar takes space in flex
   };
 
   return (
